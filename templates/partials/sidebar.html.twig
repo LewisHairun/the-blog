@@ -32,7 +32,11 @@
                 Commentaires
             </li>
         </a>
-        <li class="list-group-item border-0">Albums</li>
+        <a href="{{ path("albums_index") }}" class="text-white text-decoration-none">
+            <li class="list-group-item {{ activeMenu("albums_index") }} border-0" aria-current="true">
+                Albums
+            </li>
+        </a>
         <li class="list-group-item border-0">Photos</li>
     </ul>
   </div>
