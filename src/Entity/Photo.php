@@ -22,6 +22,10 @@ class Photo
     #[ORM\Column(length: 255)]
     private ?string $thumbnailUrl = null;
 
+    #[ORM\ManyToOne(inversedBy: 'photos')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Album $album = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +63,18 @@ class Photo
     public function setThumbnailUrl(string $thumbnailUrl): static
     {
         $this->thumbnailUrl = $thumbnailUrl;
+
+        return $this;
+    }
+
+    public function getAlbum(): ?Album
+    {
+        return $this->album;
+    }
+
+    public function setAlbum(?Album $album): static
+    {
+        $this->album = $album;
 
         return $this;
     }
