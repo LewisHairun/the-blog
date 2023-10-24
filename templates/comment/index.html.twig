@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des commentaires{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        {% include "partials/sidebar.html.twig" %}
+        <h3 class="mt-3">Liste des commentaires</h3>
+        <table class="table mt-2">
+            <thead class="bg-success text-white">
+                <tr>
+                    <th>Titre de l'article</th>
+                    <th>Corps</th>
+                    <th>Nom</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for comment in comments %}
+                    <tr>
+                        <td>
+                            {% if comment.post is defined %}
+                                {{ comment.post.title }}
+                            {% endif %}
+                        </td>
+                        <td>{{ comment.body }}</td>
+                        <td>{{ comment.name }}</td>
+                        <td>{{ comment.email }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center">Aucun commentaire</td>
+                    </tr>
+                {% endfor %}
+                {% if comments | length > 0 %}
+                    <div class="pagination mt-5">
+                        {{ knp_pagination_render(comments) }}
+                    </div>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

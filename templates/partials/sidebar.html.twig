@@ -27,8 +27,11 @@
                 Articles
             </li>
         </a>
-        <li class="list-group-item border-0">Articles</li>
-        <li class="list-group-item border-0">Commentaires</li>
+        <a href="{{ path("comments_index") }}" class="text-white text-decoration-none">
+            <li class="list-group-item {{ activeMenu("comments_index") }} border-0" aria-current="true">
+                Commentaires
+            </li>
+        </a>
         <li class="list-group-item border-0">Albums</li>
         <li class="list-group-item border-0">Photos</li>
     </ul>
