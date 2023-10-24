@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -52,6 +54,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToOne(inversedBy: 'userCompany')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Company $company = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Post::class)]
+    private Collection $userPost;
+
+    public function __construct()
+    {
+        $this->userPost = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -215,6 +225,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCompany(?Company $company): static
     {
         $this->company = $company;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Post>
+     */
+    public function getUserPost(): Collection
+    {
+        return $this->userPost;
+    }
+
+    public function addUserPost(Post $userPost): static
+    {
+        if (!$this->userPost->contains($userPost)) {
+            $this->userPost->add($userPost);
+            $userPost->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserPost(Post $userPost): static
+    {
+        if ($this->userPost->removeElement($userPost)) {
+            // set the owning side to null (unless already changed)
+            if ($userPost->getUser() === $this) {
+                $userPost->setUser(null);
+            }
+        }
 
         return $this;
     }
