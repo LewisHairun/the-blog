@@ -78,6 +78,20 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "prepare-database": [
+            "php bin/console doctrine:database:drop --force",
+            "php bin/console doctrine:database:create",
+            "php bin/console doctrine:migrations:migrate"
+        ],
+        "load-data": [
+            "php bin/console app:import:address",
+            "php bin/console app:import:company",
+            "php bin/console app:import:users",
+            "php bin/console app:import:posts",
+            "php bin/console app:import:comments",
+            "php bin/console app:import:albums",
+            "php bin/console app:import:photos"
         ]
     },
     "conflict": {
