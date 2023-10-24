@@ -15,7 +15,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AsCommand(
     name: 'app:import:address',
-    description: 'Importe les données compagnies',
+    description: 'Importe les données addresses',
 )]
 class ImportAddressCommand extends Command
 {
