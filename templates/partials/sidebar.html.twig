@@ -37,7 +37,11 @@
                 Albums
             </li>
         </a>
-        <li class="list-group-item border-0">Photos</li>
+        <a href="{{ path("photos_index") }}" class="text-white text-decoration-none">
+            <li class="list-group-item {{ activeMenu("photos_index") }} border-0" aria-current="true">
+                Photos
+            </li>
+        </a>
     </ul>
   </div>
 </div>
