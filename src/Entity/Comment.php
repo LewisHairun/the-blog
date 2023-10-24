@@ -20,9 +20,11 @@ class Comment
     #[ORM\ManyToOne(inversedBy: 'comments')]
     private ?Post $post = null;
 
-    #[ORM\ManyToOne(inversedBy: 'userComments')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $user = null;
+    #[ORM\Column(length: 120)]
+    private ?string $name = null;
+
+    #[ORM\Column(length: 100)]
+    private ?string $email = null;
 
     public function getId(): ?int
     {
@@ -53,14 +55,26 @@ class Comment
         return $this;
     }
 
-    public function getUser(): ?User
+    public function getName(): ?string
     {
-        return $this->user;
+        return $this->name;
     }
 
-    public function setUser(?User $user): static
+    public function setName(string $name): static
     {
-        $this->user = $user;
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
 
         return $this;
     }

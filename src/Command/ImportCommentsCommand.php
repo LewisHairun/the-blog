@@ -44,6 +44,8 @@ class ImportCommentsCommand extends Command
 
             $comment->setPost($post);
             $comment->setBody($body);
+            $comment->setName($item["name"]);
+            $comment->setEmail($item["email"]);
 
             $this->entityManager->persist($comment);
             $this->entityManager->flush();
