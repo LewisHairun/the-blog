@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des utilisateurs{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        {% include "partials/sidebar.html.twig" %}
+        <h3 class="mt-3">Liste des utilisateurs</h3>
+        <table class="table mt-2">
+            <thead class="bg-success text-white">
+                <tr>
+                    <th>Nom</th>
+                    <th>Nom d'utilisateur</th>
+                    <th>Email</th>
+                    <th>Rue</th>
+                    <th>Suite</th>
+                    <th>Ville</th>
+                    <th>Code postale</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>Téléphone</th>
+                    <th>Site web</th>
+                    <th>Nom de la compagnie</th>    
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.address is defined %}
+                                {{ user.address.street }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.address is defined %}
+                                {{ user.address.suite }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.address is defined %}
+                                {{ user.address.city }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.address is defined %}
+                                {{ user.address.zipcode }}
+                            {% endif %}
+                        </td>
+                        <td>{{ user.latitude }}</td>
+                        <td>{{ user.longitude }}</td>
+                        <td>{{ user.phone }}</td>
+                        <td>{{ user.website }}</td>
+                        <td>
+                            {% if user.company is defined %}
+                                {{ user.company.name }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="12" class="text-center">Aucun utilisateur</td>
+                    </tr>
+                {% endfor %}
+                {% if users | length > 0 %}
+                    <div class="pagination mt-5">
+                        {{ knp_pagination_render(users) }}
+                    </div>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
