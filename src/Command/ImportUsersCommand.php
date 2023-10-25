@@ -56,10 +56,11 @@ class ImportUsersCommand extends Command
             $user->setCompany($company);
 
             $this->entityManager->persist($user);
-            $this->entityManager->flush();
 
             $bar->advance();
         }
+
+        $this->entityManager->flush();
         
         $bar->finish();
 
