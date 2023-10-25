@@ -37,8 +37,15 @@ class ImportPhotosCommand extends Command
         $data = $this->httpClient->request(Request::METHOD_GET, "https://jsonplaceholder.typicode.com/photos")->toArray();
         $bar = new ProgressBar($output);
         $bar->start();   
+        $i = 0;
         
         foreach ($data as $item) {
+            if ($i >= 20) {
+                $io->success('Les données photos sont importées avec succès');
+
+                return Command::SUCCESS;
+            }
+
             $photo = new Photo;
             $album = $this->albumRepository->find($item["albumId"]);
             $title = $item["title"];
@@ -69,6 +76,8 @@ class ImportPhotosCommand extends Command
             $this->entityManager->persist($photo);
 
             $bar->advance();
+
+            $i++;
         }
 
         $this->entityManager->flush();
