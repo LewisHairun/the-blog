@@ -3,11 +3,15 @@
 namespace App\Entity;
 
 use App\Repository\PhotoRepository;
+use App\Traits\TimeStampTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PhotoRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Photo
 {
+    use TimeStampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
