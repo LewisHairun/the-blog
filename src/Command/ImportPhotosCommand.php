@@ -22,7 +22,9 @@ class ImportPhotosCommand extends Command
 {
     public function __construct(private HttpClientInterface $httpClient, 
                                 private EntityManagerInterface $entityManager, 
-                                private AlbumRepository $albumRepository)
+                                private AlbumRepository $albumRepository,
+                                private string $uploadPhoto,
+                                private string $uploadPhotoThumbnail)
     {
         parent::__construct();
     }
@@ -40,19 +42,36 @@ class ImportPhotosCommand extends Command
             $photo = new Photo;
             $album = $this->albumRepository->find($item["albumId"]);
             $title = $item["title"];
+
             $url = $item["url"];
+            $filenameUrl = explode("/", $url);
+            $filenameUrl = end($filenameUrl) . ".jpg";
+
+            $urlFile = file_get_contents((string) $url);
+            $urlToPublic = $this->uploadPhoto . "/" . $filenameUrl; 
+
+            file_put_contents($urlToPublic, $urlFile);
+
             $thumbnailUrl = $item["thumbnailUrl"];
+            $filenameThumbnailUrl = explode("/", $thumbnailUrl);
+            $filenameThumbnailUrl = end($filenameThumbnailUrl) . ".jpg";
+
+            $thumbnailUrlFile = file_get_contents((string) $url);
+            $thumbnailUrlToPublic = $this->uploadPhotoThumbnail . "/" . $filenameUrl; 
+
+            file_put_contents($thumbnailUrlToPublic, $thumbnailUrlFile);
 
             $photo->setTitle($title);
-            $photo->setUrl($url);
-            $photo->setThumbnailUrl($thumbnailUrl);
+            $photo->setUrl($filenameUrl);
+            $photo->setThumbnailUrl($filenameThumbnailUrl);
             $photo->setAlbum($album);
             
             $this->entityManager->persist($photo);
-            $this->entityManager->flush();
 
             $bar->advance();
         }
+
+        $this->entityManager->flush();
         
         $bar->finish();
 

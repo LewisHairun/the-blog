@@ -48,10 +48,11 @@ class ImportCommentsCommand extends Command
             $comment->setEmail($item["email"]);
 
             $this->entityManager->persist($comment);
-            $this->entityManager->flush();
 
             $bar->advance();
         }
+
+        $this->entityManager->flush();
         
         $bar->finish();
 

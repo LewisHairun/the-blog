@@ -45,10 +45,11 @@ class ImportAlbumsCommand extends Command
             $album->setUser($user);
             
             $this->entityManager->persist($album);
-            $this->entityManager->flush();
 
             $bar->advance();
         }
+
+        $this->entityManager->flush();
         
         $bar->finish();
 

@@ -37,11 +37,12 @@ class ImportCompanyCommand extends Command
             $company->setName($item["name"]);
 
             $this->entityManager->persist($company);
-            $this->entityManager->flush();
 
             $bar->advance();
         }
         
+        $this->entityManager->flush();
+
         $bar->finish();
 
         $io->success("Les données compagnies sont importées avec succès");

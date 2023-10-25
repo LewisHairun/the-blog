@@ -45,10 +45,11 @@ class ImportPostsCommand extends Command
             $post->setUser($user);
 
             $this->entityManager->persist($post);
-            $this->entityManager->flush();
 
             $bar->advance();
         }
+
+        $this->entityManager->flush();
         
         $bar->finish();
 

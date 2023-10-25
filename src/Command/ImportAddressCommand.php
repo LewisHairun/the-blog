@@ -40,10 +40,11 @@ class ImportAddressCommand extends Command
             $address->setZipcode($item["address"]["zipcode"]);
 
             $this->entityManager->persist($address);
-            $this->entityManager->flush();
 
             $bar->advance();
         }
+
+        $this->entityManager->flush();
         
         $bar->finish();
 
