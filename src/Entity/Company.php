@@ -3,13 +3,15 @@
 namespace App\Entity;
 
 use App\Repository\CompanyRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use App\Traits\TimeStampTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CompanyRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Company
 {
+    use TimeStampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -18,13 +20,8 @@ class Company
     #[ORM\Column(length: 70)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'company', targetEntity: User::class)]
-    private Collection $userCompany;
-
-    public function __construct()
-    {
-        $this->userCompany = new ArrayCollection();
-    }
+    #[ORM\OneToOne(mappedBy: 'company', cascade: ['persist', 'remove'])]
+    private ?User $userCompany = null;
 
     public function getId(): ?int
     {
@@ -43,32 +40,19 @@ class Company
         return $this;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUserCompany(): Collection
+    public function getUserCompany(): ?User
     {
         return $this->userCompany;
     }
 
-    public function addUserCompany(User $userCompany): static
+    public function setUserCompany(User $userCompany): static
     {
-        if (!$this->userCompany->contains($userCompany)) {
-            $this->userCompany->add($userCompany);
+        // set the owning side of the relation if necessary
+        if ($userCompany->getCompany() !== $this) {
             $userCompany->setCompany($this);
         }
 
-        return $this;
-    }
-
-    public function removeUserCompany(User $userCompany): static
-    {
-        if ($this->userCompany->removeElement($userCompany)) {
-            // set the owning side to null (unless already changed)
-            if ($userCompany->getCompany() === $this) {
-                $userCompany->setCompany(null);
-            }
-        }
+        $this->userCompany = $userCompany;
 
         return $this;
     }

@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use App\Traits\TimeStampTrait;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -10,8 +11,11 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    use TimeStampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -47,27 +51,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $website = null;
 
-    #[ORM\ManyToOne(inversedBy: 'userAddresses')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Address $address = null;
-
-    #[ORM\ManyToOne(inversedBy: 'userCompany')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Company $company = null;
-
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Post::class)]
     private Collection $userPost;
-
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
-    private Collection $userComments;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Album::class)]
     private Collection $albums;
 
+    #[ORM\OneToOne(inversedBy: 'userAddress', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Address $address = null;
+
+    #[ORM\OneToOne(inversedBy: 'userCompany', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Company $company = null;
+
     public function __construct()
     {
         $this->userPost = new ArrayCollection();
-        $this->userComments = new ArrayCollection();
         $this->albums = new ArrayCollection();
     }
 
@@ -213,30 +213,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getAddress(): ?Address
-    {
-        return $this->address;
-    }
-
-    public function setAddress(?Address $address): static
-    {
-        $this->address = $address;
-
-        return $this;
-    }
-
-    public function getCompany(): ?Company
-    {
-        return $this->company;
-    }
-
-    public function setCompany(?Company $company): static
-    {
-        $this->company = $company;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Post>
      */
@@ -261,36 +237,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($userPost->getUser() === $this) {
                 $userPost->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Comment>
-     */
-    public function getUserComments(): Collection
-    {
-        return $this->userComments;
-    }
-
-    public function addUserComment(Comment $userComment): static
-    {
-        if (!$this->userComments->contains($userComment)) {
-            $this->userComments->add($userComment);
-            $userComment->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUserComment(Comment $userComment): static
-    {
-        if ($this->userComments->removeElement($userComment)) {
-            // set the owning side to null (unless already changed)
-            if ($userComment->getUser() === $this) {
-                $userComment->setUser(null);
             }
         }
 
@@ -323,6 +269,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $album->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAddress(): ?Address
+    {
+        return $this->address;
+    }
+
+    public function setAddress(Address $address): static
+    {
+        $this->address = $address;
+
+        return $this;
+    }
+
+    public function getCompany(): ?Company
+    {
+        return $this->company;
+    }
+
+    public function setCompany(Company $company): static
+    {
+        $this->company = $company;
 
         return $this;
     }

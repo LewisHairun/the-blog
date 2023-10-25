@@ -3,13 +3,15 @@
 namespace App\Entity;
 
 use App\Repository\AddressRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use App\Traits\TimeStampTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AddressRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Address
 {
+    use TimeStampTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -27,13 +29,8 @@ class Address
     #[ORM\Column(length: 20)]
     private ?string $zipcode = null;
 
-    #[ORM\OneToMany(mappedBy: 'address', targetEntity: User::class)]
-    private Collection $userAddresses;
-
-    public function __construct()
-    {
-        $this->userAddresses = new ArrayCollection();
-    }
+    #[ORM\OneToOne(mappedBy: 'address', cascade: ['persist', 'remove'])]
+    private ?User $userAddress = null;
 
     public function getId(): ?int
     {
@@ -88,32 +85,19 @@ class Address
         return $this;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUserAddresses(): Collection
+    public function getUserAddress(): ?User
     {
-        return $this->userAddresses;
+        return $this->userAddress;
     }
 
-    public function addUserAddress(User $userAddress): static
+    public function setUserAddress(User $user): static
     {
-        if (!$this->userAddresses->contains($userAddress)) {
-            $this->userAddresses->add($userAddress);
-            $userAddress->setAddress($this);
+        // set the owning side of the relation if necessary
+        if ($user->getAddress() !== $this) {
+            $user->setAddress($this);
         }
 
-        return $this;
-    }
-
-    public function removeUserAddress(User $userAddress): static
-    {
-        if ($this->userAddresses->removeElement($userAddress)) {
-            // set the owning side to null (unless already changed)
-            if ($userAddress->getAddress() === $this) {
-                $userAddress->setAddress(null);
-            }
-        }
+        $this->userAddress = $user;
 
         return $this;
     }
