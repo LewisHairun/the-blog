@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Entity\Photo;
 use App\Repository\AlbumRepository;
+use App\Service\UploadAwsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -23,8 +24,8 @@ class ImportPhotosCommand extends Command
     public function __construct(private HttpClientInterface $httpClient, 
                                 private EntityManagerInterface $entityManager, 
                                 private AlbumRepository $albumRepository,
-                                private string $uploadPhoto,
-                                private string $uploadPhotoThumbnail)
+                                private string $uploadTmp,
+                                private UploadAwsService $uploadAwsService)
     {
         parent::__construct();
     }
@@ -38,35 +39,20 @@ class ImportPhotosCommand extends Command
         $bar = new ProgressBar($output);
         $bar->start();   
         $i = 0;
-        
-        foreach ($data as $item) {
-            if ($i >= 20) {
-                $io->success('Les données photos sont importées avec succès');
 
-                return Command::SUCCESS;
-            }
+        if (!file_exists($this->uploadTmp)) {
+            mkdir($this->uploadTmp, 0755);
+        }
+
+        foreach ($data as $item) {
+            // supprimer le compteur si vous voulez enregitrer tous les photos
+            if ($i >= 1)  break;
 
             $photo = new Photo;
             $album = $this->albumRepository->find($item["albumId"]);
             $title = $item["title"];
-
-            $url = $item["url"];
-            $filenameUrl = explode("/", $url);
-            $filenameUrl = end($filenameUrl) . ".jpg";
-
-            $urlFile = file_get_contents((string) $url);
-            $urlToPublic = $this->uploadPhoto . "/" . $filenameUrl; 
-
-            file_put_contents($urlToPublic, $urlFile);
-
-            $thumbnailUrl = $item["thumbnailUrl"];
-            $filenameThumbnailUrl = explode("/", $thumbnailUrl);
-            $filenameThumbnailUrl = end($filenameThumbnailUrl) . ".jpg";
-
-            $thumbnailUrlFile = file_get_contents((string) $url);
-            $thumbnailUrlToPublic = $this->uploadPhotoThumbnail . "/" . $filenameUrl; 
-
-            file_put_contents($thumbnailUrlToPublic, $thumbnailUrlFile);
+            $filenameUrl = $this->getFileName($item["url"], $this->uploadTmp);
+            $filenameThumbnailUrl = $this->getFileName($item["thumbnailUrl"], $this->uploadTmp);
 
             $photo->setTitle($title);
             $photo->setUrl($filenameUrl);
@@ -88,4 +74,21 @@ class ImportPhotosCommand extends Command
 
         return Command::SUCCESS;
     }
+
+    private function getFileName(string $url, string $pathUpload): string
+    {
+
+        $filename = explode("/", $url);
+        $fileSize = $filename[3];
+        $filename = end($filename) . "-" . $fileSize. ".jpg";
+
+        $urlFile = file_get_contents((string) $url);
+        $pathUrl = $pathUpload . "/" . $filename; 
+
+        file_put_contents($pathUrl, $urlFile);
+
+        $this->uploadAwsService->upload($pathUrl, $filename);
+
+        return $filename;
+    } 
 }
